@@ -1,0 +1,60 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[dutch]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{hyperref}
+
+
+\begin{document}
+\graphicspath{ {./images/} }
+\DeclareGraphicsExtensions{.png,.jpg}
+\lstset{language=bash}      
+\author{Steven L. Speek}
+\title{FAI GNUDok documentatie}
+\date{\today}
+\maketitle
+\abstract{Nederlandse handleiding voor een FAI-installatie.}
+
+\section{Voorbereiding}
+\subsection{MAC adres achterhalen}
+Laat de machine die je wilt installeren opstarten en ga de BIOS in. In de BIOS schakel je boot ROM faciliteiten in. En configureer je de netwerkkaart als eerste boot-optie. Dan laat je de netwerkboot lopen en schrijft van de scherm het MAC-adres over. Dit zijn zes groepjes van twee cijfers en letters met dubbele punten ertussen. 
+
+\section{FAI server instellen}
+\subsection{Hosts bestand}
+In \texttt{/etc/hosts} moet een hostnaam en een IP-adres worden gedefinieerd (zie eventueel \texttt{man hosts}).
+\subsection{DHCP-server instellen}
+In \texttt{/etc/dhcp/dhcpd.conf} moet een entry zoals 
+
+\begin{lstlisting}
+host debian02 {hardware ethernet 0:19:21:5b:7d:af;fixed-address debian02;}
+\end{lstlisting}
+worden opgenomen. Dan moet de DHCP-server herstart worden met:
+
+\begin{lstlisting}
+/etc/init.d/isc-dhcp-server restart
+\end{lstlisting}
+
+
+\subsection{PXE instellen}
+Met het volgende commando:
+\begin{lstlisting}
+fai-chboot -u nfs://10.0.40.2/srv/fai/config -IFv debian02
+\end{lstlisting}
+maak je een PXE entry voor jouw machine aan.
+
+Dan moet je om een bug in FAI heenwerken door het zojuist geschreven bestand in \\ \texttt{/srv/tftp/fai/pxelinux.cfg} te herschrijven met het volgende \texttt{sed}-commando:
+\begin{lstlisting}
+sed -e 's%/srv/fai/nfsroot%10.0.40.2:/srv/fai/nfsroot:vers=3%' \
+				/srv/tftp/fai/pxelinux.cfg/0A0028BC
+\end{lstlisting}
+
+Nu zou je je te installeren machine kunnen laten booten van haar netwerkkaart en de automatische installatie zou moeten beginnen.
+
+\end{document}
+
