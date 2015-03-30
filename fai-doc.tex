@@ -27,14 +27,21 @@ Laat de machine die je wilt installeren opstarten en ga de BIOS in. In de BIOS s
 
 \section{FAI server instellen}
 \subsection{Hosts bestand}
-In \texttt{/etc/hosts} moet een hostnaam en een IP-adres worden gedefinieerd (zie eventueel \texttt{man hosts}).
-\subsection{DHCP-server instellen}
-In \texttt{/etc/dhcp/dhcpd.conf} moet een entry zoals 
-
+Voor de installatie van machine voor de verkoop gebruiken we hostnamen zoals \texttt{debianNN} (dit is bijvoorbeeld \texttt{debian02}).
+In \texttt{/etc/hosts} moet een hostnaam en een IP-adres worden gedefinieerd (zie eventueel \texttt{man hosts}). Met het volgende commando bepaal je de hoogst in gebruik zijnde \texttt{debianNN} en ip-adres.  
 \begin{lstlisting}
-host debian02 {hardware ethernet 0:19:21:5b:7d:af;fixed-address debian02;}
+grep debian /etc/hosts|sort -r|head -1
 \end{lstlisting}
-worden opgenomen. Dan moet de DHCP-server herstart worden met:
+Je gaat precies \'{e}\'{e}n hoger zitten. Deze voeg je toe aan \texttt{/etc/hosts}, met het commando
+\begin{lstlisting}
+vim /etc/hosts
+\end{lstlisting}
+\subsection{DHCP-server instellen}
+Met het speciaal daarvoor bestemde fai-util \texttt{dhcp-edit} voeg je deze in vorige sectie gekozen hostnaam en mac-adres toe.
+\begin{lstlisting}
+dhcp-edit debianNN 00:11:22:33:44:55
+\end{lstlisting}
+Dan moet de DHCP-server herstart worden met:
 
 \begin{lstlisting}
 /etc/init.d/isc-dhcp-server restart
@@ -44,15 +51,9 @@ worden opgenomen. Dan moet de DHCP-server herstart worden met:
 \subsection{PXE instellen}
 Met het volgende commando:
 \begin{lstlisting}
-fai-chboot -u nfs://10.0.40.2/srv/fai/config -IFv debian02
+pxe.sh debianNN
 \end{lstlisting}
 maak je een PXE entry voor jouw machine aan.
-
-Dan moet je om een bug in FAI heenwerken door het zojuist geschreven bestand in \\ \texttt{/srv/tftp/fai/pxelinux.cfg} te herschrijven met het volgende \texttt{sed}-commando:
-\begin{lstlisting}
-sed -e 's%/srv/fai/nfsroot%10.0.40.2:/srv/fai/nfsroot:vers=3%' \
-				/srv/tftp/fai/pxelinux.cfg/0A0028BC
-\end{lstlisting}
 
 Nu zou je je te installeren machine kunnen laten booten van haar netwerkkaart en de automatische installatie zou moeten beginnen.
 
