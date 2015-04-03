@@ -1,7 +1,7 @@
-\documentclass[12pt,a4paper]{article}
+\documentclass[11pt,a4paper]{article}
 \usepackage[dutch]{babel}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=0.5in]{geometry}
+\usepackage[margin=1cm]{geometry}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -14,46 +14,51 @@
 \begin{document}
 \graphicspath{ {./images/} }
 \DeclareGraphicsExtensions{.png,.jpg}
-\lstset{language=bash}      
+\lstset{language=bash} 
 \author{Steven L. Speek}
 \title{FAI GNUDok documentatie}
 \date{\today}
 \maketitle
-\abstract{Nederlandse handleiding voor een FAI-installatie.}
+\abstract{Nederlandse handleiding voor een FAI-installatie van een machine voor de verkoop.}
 
 \section{Voorbereiding}
 \subsection{MAC adres achterhalen}
 Laat de machine die je wilt installeren opstarten en ga de BIOS in. In de BIOS schakel je boot ROM faciliteiten in. En configureer je de netwerkkaart als eerste boot-optie. Dan laat je de netwerkboot lopen en schrijft van de scherm het MAC-adres over. Dit zijn zes groepjes van twee cijfers en letters met dubbele punten ertussen. 
 
 \section{FAI server instellen}
+Om te kunnen bestaan heeft de nieuw te installeren machine een unieke hostnaam nodig van de vorm \texttt{debianNN}. Deze zal in \texttt{/etc/hosts} moeten worden opgenomen. Vervolgens moet het MAC-adres van de computer hieraan worden gekoppeld.
 \subsection{Hosts bestand}
 Voor de installatie van machine voor de verkoop gebruiken we hostnamen zoals \texttt{debianNN} (dit is bijvoorbeeld \texttt{debian02}).
 In \texttt{/etc/hosts} moet een hostnaam en een IP-adres worden gedefinieerd (zie eventueel \texttt{man hosts}). Met het volgende commando bepaal je de hoogst in gebruik zijnde \texttt{debianNN} en ip-adres.  
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 grep debian /etc/hosts|sort -r|head -1
 \end{lstlisting}
 Je gaat precies \'{e}\'{e}n hoger zitten. Deze voeg je toe aan \texttt{/etc/hosts}, met het commando
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 vim /etc/hosts
 \end{lstlisting}
 \subsection{DHCP-server instellen}
 Met het speciaal daarvoor bestemde fai-util \texttt{dhcp-edit} voeg je deze in vorige sectie gekozen hostnaam en mac-adres toe.
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 dhcp-edit debianNN 00:11:22:33:44:55
 \end{lstlisting}
 Dan moet de DHCP-server herstart worden met:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 /etc/init.d/isc-dhcp-server restart
 \end{lstlisting}
 
 
 \subsection{PXE instellen}
-Met het volgende commando:
-\begin{lstlisting}
+Bij deze stap moet je weten of je een 32-bit of een 64-bit computer wilt installeren.
+Voor 64-bit luidt commando:
+\begin{lstlisting}[language=bash]
 pxe.sh debianNN
 \end{lstlisting}
-maak je een PXE entry voor jouw machine aan.
+Voor 32-bit is het:
+\begin{lstlisting}[language=bash]
+pxe-i386.sh debianNN
+\end{lstlisting}
 
 Nu zou je je te installeren machine kunnen laten booten van haar netwerkkaart en de automatische installatie zou moeten beginnen.
 
